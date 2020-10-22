@@ -15,12 +15,11 @@ const generateItemElement = function (item) {
      <span class='shopping-item'>${item.name}</span>
     `;
   }
-  let editBox = `<button id="edit">Edit Item</button>`;
+  let editBox = ``;
   if(item.editing) {
     itemTitle = "";
     editBox = `<label for="editbox">Change Name</label>
-    <input type="text" id="editbox" name="editbox" value="${item.name}" >
-    <button id="submit">Submit</button>`;
+    <input type="text" id="editbox" name="editbox" value="${item.name}" >`;
   }
   return `
     <li class='js-item-element' data-item-id='${item.id}'>
@@ -32,6 +31,7 @@ const generateItemElement = function (item) {
         <button class='shopping-item-delete js-item-delete'>
           <span class='button-label'>delete</span>
         </button>
+        ${item.editing ? '<button id="submit">submit</button>' : '<button id="edit">edit</button>'}
       </div>
     </li>`;
 };
@@ -69,7 +69,7 @@ const render = function () {
 };
 
 const addItemToShoppingList = function (itemName) {
-  store.items.push({ id: cuid(), name: itemName, checked: false });
+  store.items.push({ id: cuid(), name: itemName, checked: false, editing: false });
 };
 
 const handleNewItemSubmit = function () {
@@ -109,7 +109,6 @@ const handleEditName = function(id) {
 const handleSubmitName = function(id) {
   const foundItem = store.items.find(item => item.id === id);
   let val = $('#editbox').val();
-  console.log(val);
   foundItem.name = val;
   foundItem.editing = false;
 }
