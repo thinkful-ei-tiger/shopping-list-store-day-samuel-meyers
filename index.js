@@ -1,9 +1,9 @@
 const store = {
   items: [
-    { id: cuid(), name: 'apples', checked: false },
-    { id: cuid(), name: 'oranges', checked: false },
-    { id: cuid(), name: 'milk', checked: true },
-    { id: cuid(), name: 'bread', checked: false }
+    { id: cuid(), name: 'apples', checked: false, editing: false },
+    { id: cuid(), name: 'oranges', checked: false, editing: true },
+    { id: cuid(), name: 'milk', checked: true, editing: false },
+    { id: cuid(), name: 'bread', checked: false, editing: false }
   ],
   hideCheckedItems: false
 };
@@ -15,10 +15,16 @@ const generateItemElement = function (item) {
      <span class='shopping-item'>${item.name}</span>
     `;
   }
-
+  let editBox = `<button id="edit">Edit Item</button>`;
+  if(item.editing) {
+    itemTitle = "";
+    editBox = `<label for="editbox">Change Name</label>
+    <input type="text" id="editbox" name="editbox" value="${item.name}" >
+    <button id="submit">Submit</button>`;
+  }
   return `
     <li class='js-item-element' data-item-id='${item.id}'>
-      ${itemTitle}
+      ${itemTitle}${editBox}
       <div class='shopping-item-controls'>
         <button class='shopping-item-toggle js-item-toggle'>
           <span class='button-label'>check</span>
@@ -95,6 +101,19 @@ const getItemIdFromElement = function (item) {
     .data('item-id');
 };
 
+const handleEditName = function(id) {
+  const foundItem = store.items.find(item => item.id === id);
+  foundItem.editing = true;
+};
+
+const handleSubmitName = function(id) {
+  const foundItem = store.items.find(item => item.id === id);
+  let val = $('#editbox').val();
+  console.log(val);
+  foundItem.name = val;
+  foundItem.editing = false;
+}
+
 /**
  * Responsible for deleting a list item.
  * @param {string} id 
@@ -145,6 +164,22 @@ const handleToggleFilterClick = function () {
   });
 };
 
+const handleEditItemClicked = function() {
+  $('.js-shopping-list').on('click', '#edit', function(event) {
+    const id = getItemIdFromElement(event.currentTarget);
+    handleEditName(id);
+    render();
+  });
+}
+
+const handleSubmitItemClicked = function() {
+  $('.js-shopping-list').on('click', '#submit', function(event) {
+    const id = getItemIdFromElement(event.currentTarget);
+    handleSubmitName(id);
+    render();
+  })
+}
+
 /**
  * This function will be our callback when the
  * page loads. It is responsible for initially 
@@ -160,6 +195,8 @@ const handleShoppingList = function () {
   handleItemCheckClicked();
   handleDeleteItemClicked();
   handleToggleFilterClick();
+  handleEditItemClicked();
+  handleSubmitItemClicked();
 };
 
 // when the page loads, call `handleShoppingList`
